@@ -1,10 +1,13 @@
 
 use libraries::Stat::Basic;
-use Time::HiRes qw(gettimeofday);
+use Time::HiRes qw(gettimeofday tv_interval);
 
 my $stat = new Stat::Basic;
 
 my $file;
+
+$before = gettimeofday;
+
 open $file, '<', $ARGV[0];
 my @lr = ();
 $ind = 0;
@@ -19,73 +22,64 @@ print "Number of entries: ";
 print $ind;
 print  "\n";
 print  "\n";
+$elapsed = gettimeofday( ) - $before;
+print "Time for preparation: ";
+print sprintf("%.2f", $elapsed*1000);
+print  "\n";
 
 $before = gettimeofday;
-print "Result mean(): ";
+$res = $stat -> mean(\@lr);
+$elapsed = gettimeofday( ) - $before;
 print $stat -> mean(\@lr);
 print  "\n";
-$elapsed = gettimeofday() - $before;
-print "Time mean(): ";
-print $elapsed;
+print "Time for mean: ";
+print sprintf("%.2f", $elapsed*1000);
 print " ms";
 print  "\n";
-print  "\n";
-
 
 $before = gettimeofday;
-print "Result median() ";
 print $stat -> median(\@lr);
 print  "\n";
-$elapsed = gettimeofday() - $before;
-print "Time median(): ";
-print $elapsed;
+$elapsed = gettimeofday( ) - $before;
+print "Time for median: ";
+print sprintf("%.2f", $elapsed*1000);
 print " ms";
-print  "\n";
 print  "\n";
 
 $before = gettimeofday;
-print "Result prctile() ";
-print $stat -> prctile(\@lr, 0.1, 0);
-print  "\n";
-$elapsed = gettimeofday() - $before;
-print "Time prctile(): ";
-print $elapsed;
-print " ms";
-print  "\n";
-print  "\n";
 
-
-$before = gettimeofday;
-print "Result max() ";
 print $stat -> max(\@lr);
 print  "\n";
-$elapsed = gettimeofday() - $before;
-print "Time max(): ";
-print $elapsed;
+$elapsed = gettimeofday( ) - $before;
+print "Time for max: ";
+print sprintf("%.2f", $elapsed*1000);
 print " ms";
-print  "\n";
 print  "\n";
 
 $before = gettimeofday;
-print "Result min() ";
 print $stat -> min(\@lr);
 print  "\n";
-$elapsed = gettimeofday() - $before;
-print "Time min(): ";
-print $elapsed;
+$elapsed = gettimeofday( ) - $before;
+print "Time for min: ";
+print sprintf("%.2f", $elapsed*1000);
 print " ms";
 print  "\n";
-print  "\n";
-
 
 $before = gettimeofday;
-print "Result sum() ";
 print $stat -> sum(\@lr);
 print  "\n";
-$elapsed = gettimeofday() - $before;
-print "Time sum(): ";
-print $elapsed;
+$elapsed = gettimeofday( ) - $before;
+print "Time for sum: ";
+print sprintf("%.2f", $elapsed*1000);
 print " ms";
 print  "\n";
+
+$before = gettimeofday;
+print $stat -> prctile(\@lr, 10, 0);
+print  "\n";
+$elapsed = gettimeofday( ) - $before;
+print "Time for prctile: ";
+print sprintf("%.2f", $elapsed*1000);
+print " ms";
 print  "\n";
 
