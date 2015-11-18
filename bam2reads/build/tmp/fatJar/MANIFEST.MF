@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Title: Bam2Reads
+Implementation-Version: 1.0
+Main-Class: seq2c.bam2reads.MainClient
+

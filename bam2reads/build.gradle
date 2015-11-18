@@ -1,0 +1,45 @@
+group 'bam2reads'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin:'application'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+mainClassName = "seq2c.bam2reads.Bam2ReadsClient"
+
+repositories {
+    mavenCentral()
+}
+
+afterEvaluate {
+    if(project.hasProperty("hprof")) {
+        applicationDefaultJvmArgs = ["-Xrunhprof:cpu=times,depth=10", "-Xmx768m"]
+    } else {
+        applicationDefaultJvmArgs = ["-Xms768m", "-Xmx8g"]
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Bam2Reads',
+                'Implementation-Version': version,
+                'Main-Class': 'seq2c.bam2reads.Bam2ReadsClient'
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+
+
+dependencies {
+    compile 'commons-cli:commons-cli:1.2'
+    compile 'com.edropple.jregex:jregex:1.2_01'
+    compile('com.github.samtools:htsjdk:1.129') {
+        transitive = false
+    }
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
