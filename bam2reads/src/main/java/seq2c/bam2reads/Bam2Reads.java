@@ -56,11 +56,11 @@ public class Bam2Reads {
 
     /**
      * Reads input file line by line and creates a map containing
-     * file header/bam file name
+     * sample name/bam file name
      *
      * @param fileName contains list of sample names and bam files to process,
      *                 each line in file represent one file
-     * @return map with bam file names
+     * @return map with sample names/bam file names
      */
     private static Map<String, String> parseFile(String fileName) {
         Map<String, String> map = new LinkedHashMap<>();
