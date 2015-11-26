@@ -221,7 +221,7 @@ public class Cov2lrNoStat {
     }
 
     private void printResult(List<String> bad) {
-        int count = 0;
+
         for (Map.Entry<String, Map<String, Sample>> entry : samples.entrySet()) {
             if (!bad.contains(entry.getKey())) {
                 for (Map.Entry<String, Sample> entrySample : entry.getValue().entrySet()) {
