@@ -305,7 +305,7 @@ public class Cov2lr {
         if (!list.isEmpty()) {
             double mean = new Mean().evaluate(toDoubleArray(list));
             StringBuilder builder = new StringBuilder(result);
-            builder.append("\t").append(String.format("%.3f%n", sample.getNorm1b() / mean / Math.log(2)));
+            builder.append("\t").append(String.format("%.3f%n", mean == 0 ? sample.getNorm1b() / mean / Math.log(2) : 0));
         }
     }
 
