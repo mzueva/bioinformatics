@@ -1,8 +1,10 @@
 package seq2c.cov2lr;
 
+import org.apache.commons.math3.analysis.function.Log;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+import org.apache.commons.math3.util.Precision;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -78,6 +80,14 @@ public class Cov2lr {
      *
      */
 
+    /**
+     * Help utils for statistics
+     */
+    private Log log = new Log();
+    private Median median = new Median();
+    private Mean mean = new Mean();
+
+
     public Cov2lr(boolean amplicon, String fileStat, String fileCov, boolean useControlSamples, String controlSamples) {
         this.amplicon = amplicon;
         this.useControlSamples = false;
@@ -111,7 +121,7 @@ public class Cov2lr {
 
         splitQualitySamples(samp, medDepth, bad, gooddepth);
 
-        medDepth = new Median().evaluate(toDoubleArray(gooddepth));
+        medDepth = median.evaluate(toDoubleArray(gooddepth));
 
         Map<String, Double> factor2 = new LinkedHashMap<>();
 
@@ -160,7 +170,7 @@ public class Cov2lr {
                     long start = Long.parseLong(sampleLines[3]);
                     long end = Long.parseLong(sampleLines[4]);
                     long len = Long.parseLong(sampleLines[6]);
-                    long depth = Long.parseLong(sampleLines[7]);
+                    double depth = Double.parseDouble(sampleLines[7]);
 
                     addGene(genes, gene, chr, start, end, len);
                     String key = amplicon ? concatKey(gene, chr, sampleLines[3], sampleLines[4], sampleLines[6]) : gene ;
@@ -196,7 +206,7 @@ public class Cov2lr {
         }
     }
 
-    private void addSample(Map<String, Map<String, Sample>> map, String key, String sample, long len, long depth, String gene) {
+    private void addSample(Map<String, Map<String, Sample>> map, String key, String sample, long len, double depth, String gene) {
 
         if (map.containsKey(key)) {
             Map<String, Sample> sampleMap = map.get(key);
@@ -223,7 +233,7 @@ public class Cov2lr {
         for (Long l : mappingReads.values()) {
             array[i++] = l;
         }
-        double meanReads = new Mean().evaluate(array);
+        double meanReads = mean.evaluate(array);
 
         for (Map.Entry<String, Long> entry : mappingReads.entrySet()) {
             factor.put(entry.getKey(), meanReads / entry.getValue());
@@ -303,13 +313,14 @@ public class Cov2lr {
             }
         }
         if (!list.isEmpty()) {
-            double mean = new Mean().evaluate(toDoubleArray(list));
+            double meanVal = mean.evaluate(toDoubleArray(list));
             StringBuilder builder = new StringBuilder(result);
-            builder.append("\t").append(String.format("%.3f%n", mean == 0 ? sample.getNorm1b() / mean / Math.log(2) : 0));
+            builder.append("\t").append(String.format("%.3f%n", meanVal == 0 ? sample.getNorm1b() / meanVal / log.value(2) : 0));
         }
     }
 
     private void setNorm(double medDepth, List<String> bad, Map<String, Double> factor2, Map<String, Double> sampleMedian) {
+
         for (Map.Entry<String, Map<String, Sample>> entry : samples.entrySet()) {
             if (!bad.contains(entry.getKey())) {
                 for (Map.Entry<String, Sample> entrySample : entry.getValue().entrySet()) {
@@ -317,9 +328,9 @@ public class Cov2lr {
                     double norm1 = sample.getNorm1();
                     double fact2 = factor2.get(entry.getKey());
                     double smplMed = sampleMedian.get(sample.getSample());
-                    sample.setNorm1b(norm1 * fact2 + 0.1);
-                    sample.setNorm2(round(medDepth != 0 ? Math.log((norm1 * fact2 + 0.1) / medDepth / Math.log(2)) : 0));
-                    sample.setNorm3(round(smplMed != 0 ? Math.log((norm1 * fact2 + 0.1) / smplMed / Math.log(2)) : 0));
+                    sample.setNorm1b(Precision.round(norm1 * fact2 + 0.1, 2));
+                    sample.setNorm2(Precision.round(medDepth != 0 ? log.value((norm1 * fact2 + 0.1) / medDepth) / log.value(2) : 0 , 2));
+                    sample.setNorm3(Precision.round(smplMed != 0 ? log.value((norm1 * fact2 + 0.1) / smplMed) / log.value(2) : 0 , 2));
 
                 }
             }
@@ -336,7 +347,7 @@ public class Cov2lr {
                     list.add(entry.getValue().get(s).getNorm1());
                 }
             }
-            sampleMedian.put(s, new Median().evaluate(toDoubleArray(list)));
+            sampleMedian.put(s, median.evaluate(toDoubleArray(list)));
         }
         return sampleMedian;
     }
@@ -373,22 +384,19 @@ public class Cov2lr {
 
     private double getMedDepth(double[] depth, Set<String> samp) {
         int i = 0;
+
         for (Map.Entry<String, Map<String, Sample>> entry: samples.entrySet()) {
             Map<String, Sample> sampleMap =  entry.getValue();
 
             for(Map.Entry<String, Sample> sampleEntry : sampleMap.entrySet()) {
                 Sample sample = sampleEntry.getValue();
-                double norm1 = round(sample.getCov() * factor.get(sample.getSample()));
+                double norm1 = Precision.round((sample.getCov() * factor.get(sample.getSample())), 2);
                 sample.setNorm1(norm1);
                 depth[i++] = norm1;
                 samp.add(sample.getSample());
             }
         }
-        return new Median().evaluate(depth);
-    }
-
-    private double round(double d) {
-        return Math.round(d * 100) / 100;
+        return median.evaluate(depth);
     }
 
     private double filterData(Set<String> sampleSet, Map<String, Sample> map, List<Double> list) {
