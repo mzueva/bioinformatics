@@ -1,21 +1,19 @@
 package seq2c.cov2lr;
 
-/**
- * Created by Mariia_Zueva on 11/25/2015.
- */
+
 public class Sample {
     private String name;
     private String sample;
     private String gene;
     private long len;
-    private long cov;
+    private double cov;
     private double norm1;
     private double factor2;
     private double norm1b;
     private double norm2;
     private double norm3;
 
-    public Sample(String name, String sample, String gene, long len, long cov) {
+    public Sample(String name, String sample, String gene, long len, double cov) {
         this.name = name;
         this.sample = sample;
         this.len = len;
@@ -53,11 +51,11 @@ public class Sample {
         this.len = this.len + len;
     }
 
-    public long getCov() {
+    public double getCov() {
         return cov;
     }
 
-    public void addCov(long cov) {
+    public void addCov(double cov) {
         this.cov = this.cov + cov;
     }
 
