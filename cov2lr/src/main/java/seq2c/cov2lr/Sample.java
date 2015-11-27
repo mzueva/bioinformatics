@@ -101,7 +101,7 @@ public class Sample {
         StringBuilder builder = new StringBuilder();
         builder.append(sample).append("\t");
         builder.append(title).append("\t");
-        builder.append(cov).append("\t");
+        builder.append(String.format(format, cov).trim()).append("\t");
         builder.append(String.format(format, norm1).trim()).append("\t");
         builder.append(String.format(format, norm1b).trim()).append("\t");
         builder.append(String.format(format, norm2).trim()).append("\t");
